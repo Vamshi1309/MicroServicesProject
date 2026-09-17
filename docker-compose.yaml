@@ -1,0 +1,38 @@
+services:
+  eureka-server:
+    build: ./eureka-server
+    container_name: eureka-server
+    ports:
+      - "8761:8761"
+
+  auth-service:
+    build: ./auth-service
+    container_name: auth-service
+    ports:
+      - "8081:8081"
+    depends_on:
+      - eureka-server
+
+  document-service:
+    build: ./document-service
+    container_name: document-service
+    ports:
+      - "8082:8082"
+    depends_on:
+      - eureka-server
+
+  rag-service:
+    build: ./rag-service
+    container_name: rag-service
+    ports:
+      - "8083:8083"
+    depends_on:
+      - eureka-server
+
+  api-gateway:
+    build: ./api-gateway
+    container_name: api-gateway
+    ports:
+      - "8080:8080"
+    depends_on:
+      - eureka-server
