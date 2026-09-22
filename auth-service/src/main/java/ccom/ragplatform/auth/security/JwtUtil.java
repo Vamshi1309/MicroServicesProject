@@ -2,6 +2,7 @@ package ccom.ragplatform.auth.security;
 
 import java.nio.charset.StandardCharsets;
 import java.util.Date;
+import java.util.UUID;
 
 import javax.crypto.SecretKey;
 
@@ -27,7 +28,7 @@ public class JwtUtil {
                 secret.getBytes(StandardCharsets.UTF_8));
     }
 
-    public String generateAccessToken(Long userId, String email) {
+    public String generateAccessToken(UUID userId, String email) {
         Date now = new Date();
 
         return Jwts.builder()
