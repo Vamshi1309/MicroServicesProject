@@ -4,23 +4,25 @@ spring:
 
   cloud:
     gateway:
-      routes:
-        - id: auth-service
-          uri: lb://auth-service
-          predicates:
-            - Path=/auth/**
+      server:
+        webflux:
+          routes:
+            - id: auth-service
+              uri: lb://auth-service
+              predicates:
+                - Path=/auth/**
 
-        - id: document-service
-          uri: lb://document-service
-          predicates:
-            - Path=/documents/**
-          filters:
-            - AddRequestHeader=X-Gateway, true
+            - id: document-service
+              uri: lb://document-service
+              predicates:
+                - Path=/documents/**
+              filters:
+                - AddRequestHeader=X-Gateway, true
 
-        - id: rag-service
-          uri: lb://rag-service
-          predicates:
-            - Path=/ask/**
+            - id: rag-service
+              uri: lb://rag-service
+              predicates:
+                - Path=/ask/**
 
 server:
   port: 8080
@@ -28,11 +30,18 @@ server:
 jwt:
   secret: ${JWT_SECRET}
 
-# Eureka
 eureka:
   client:
     service-url:
       defaultZone: http://eureka-server:8761/eureka/
-
   instance:
     prefer-ip-address: true
+
+management:
+  endpoints:
+    web:
+      exposure:
+        include: gateway,health
+  endpoint:
+    gateway:
+      access: read-only
