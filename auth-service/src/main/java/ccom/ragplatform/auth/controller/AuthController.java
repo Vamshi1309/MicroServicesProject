@@ -20,32 +20,32 @@ import lombok.RequiredArgsConstructor;
 @RequiredArgsConstructor
 public class AuthController {
 
-    private final AuthService authService;
+        private final AuthService authService;
 
-    @PostMapping("/register")
-    public ResponseEntity<ApiResponse<Void>> register(
-            @RequestBody @Valid RegisterRequest req) {
+        @PostMapping("/register")
+        public ResponseEntity<ApiResponse<Void>> register(
+                        @RequestBody @Valid RegisterRequest req) {
 
-        authService.register(req);
+                authService.register(req);
 
-        return ResponseEntity.status(HttpStatus.CREATED)
-                .body(
-                        ApiResponse.success(
-                                HttpStatus.CREATED.value(),
-                                "User created successfully",
-                                null));
-    }
+                return ResponseEntity.status(HttpStatus.CREATED)
+                                .body(
+                                                ApiResponse.success(
+                                                                HttpStatus.CREATED.value(),
+                                                                "User created successfully",
+                                                                null));
+        }
 
-    @PostMapping("/login")
-    public ResponseEntity<ApiResponse<AuthResponse>> login(
-            @RequestBody @Valid LoginRequest request) {
+        @PostMapping("/login")
+        public ResponseEntity<ApiResponse<AuthResponse>> login(
+                        @RequestBody @Valid LoginRequest request) {
 
-        AuthResponse response = authService.login(request);
+                AuthResponse response = authService.login(request);
 
-        return ResponseEntity.ok(
-                ApiResponse.success(
-                        "Logged in successfully",
-                        response));
-    }
+                return ResponseEntity.ok(
+                                ApiResponse.success(
+                                                "Logged in successfully",
+                                                response));
+        }
 
 }
