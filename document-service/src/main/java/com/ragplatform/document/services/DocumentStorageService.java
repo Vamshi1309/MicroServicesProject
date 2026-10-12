@@ -11,6 +11,8 @@ import org.springframework.stereotype.Service;
 import org.springframework.util.StringUtils;
 import org.springframework.web.multipart.MultipartFile;
 
+import com.ragplatform.document.exception.InvalidDocumentException;
+
 @Service
 public class DocumentStorageService {
 
@@ -19,7 +21,7 @@ public class DocumentStorageService {
 
     public String storeFile(MultipartFile file) throws IOException {
         if (file == null || file.isEmpty()) {
-            throw new IllegalArgumentException("Uploaded file is empty");
+            throw new InvalidDocumentException("Uploaded file is empty");
         }
 
         String originalFileName = StringUtils
@@ -34,7 +36,7 @@ public class DocumentStorageService {
         Path destination = storageDirectory.resolve(storedFileName).normalize();
 
         if (!destination.startsWith(storageDirectory)) {
-            throw new IllegalArgumentException("Invalid file path");
+            throw new InvalidDocumentException("Invalid file path");
         }
 
         Files.copy(file.getInputStream(), destination);
