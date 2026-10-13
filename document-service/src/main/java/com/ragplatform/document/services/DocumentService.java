@@ -16,39 +16,38 @@ import lombok.RequiredArgsConstructor;
 @RequiredArgsConstructor
 public class DocumentService {
 
-    private final DocumentStorageService storageService;
-    private final DocumentRepository documentRepository;
+        private final DocumentStorageService storageService;
+        private final DocumentRepository documentRepository;
+        private final RagServiceClient ragServiceClient;
 
-    public DocumentResponse uploadDocument(MultipartFile file) throws IOException {
+        public DocumentResponse uploadDocument(MultipartFile file) throws IOException {
 
-        // 1. Store the actual file on disk
-        String storagePath = storageService.storeFile(file);
+                // 1. Store the actual file on disk
+                String storagePath = storageService.storeFile(file);
 
-        // 2. Create the database entity
-        Document document = new Document();
+                // 2. Create the database entity
+                Document document = new Document();
 
-        document.setOriginalFileName(file.getOriginalFilename());
-        document.setStoredFileName(
-                Paths.get(storagePath).getFileName().toString()
-        );
-        document.setContentType(
-                file.getContentType() != null
-                        ? file.getContentType()
-                        : "application/octet-stream"
-        );
-        document.setFileSize(file.getSize());
-        document.setStoragePath(storagePath);
+                document.setOriginalFileName(file.getOriginalFilename());
+                document.setStoredFileName(
+                                Paths.get(storagePath).getFileName().toString());
+                document.setContentType(
+                                file.getContentType() != null
+                                                ? file.getContentType()
+                                                : "application/octet-stream");
+                document.setFileSize(file.getSize());
+                document.setStoragePath(storagePath);
 
-        // 3. Save metadata in PostgreSQL
-        Document savedDocument = documentRepository.save(document);
+                // 3. Save metadata in PostgreSQL
+                Document savedDocument = documentRepository.save(document);
+                ragServiceClient.ingestDocument(file);
 
-        // 4. Convert the entity into a safe API response
-        return new DocumentResponse(
-                savedDocument.getId(),
-                savedDocument.getOriginalFileName(),
-                savedDocument.getContentType(),
-                savedDocument.getFileSize(),
-                savedDocument.getUploadedAt()
-        );
-    }
+                // 4. Convert the entity into a safe API response
+                return new DocumentResponse(
+                                savedDocument.getId(),
+                                savedDocument.getOriginalFileName(),
+                                savedDocument.getContentType(),
+                                savedDocument.getFileSize(),
+                                savedDocument.getUploadedAt());
+        }
 }
