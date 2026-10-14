@@ -40,7 +40,10 @@ public class DocumentService {
 
                 // 3. Save metadata in PostgreSQL
                 Document savedDocument = documentRepository.save(document);
-                ragServiceClient.ingestDocument(file);
+
+                ragServiceClient.ingestDocument(
+                                file,
+                                savedDocument.getId().toString());
 
                 // 4. Convert the entity into a safe API response
                 return new DocumentResponse(

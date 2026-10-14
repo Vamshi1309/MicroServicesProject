@@ -21,7 +21,6 @@ import lombok.RequiredArgsConstructor;
 public class DocumentIngestionController {
     private final PdfTextExtractionService pdfTextExtractionService;
     private final DocumentIngestionService documentIngestionService;
-    
 
     @PostMapping(value = "/extract", consumes = MediaType.MULTIPART_FORM_DATA_VALUE)
     public Map<String, Object> extractPdftext(
@@ -42,13 +41,14 @@ public class DocumentIngestionController {
 
     @PostMapping(value = "/ingest", consumes = MediaType.MULTIPART_FORM_DATA_VALUE)
     public Map<String, Object> ingestPdf(
-            @RequestParam("file") MultipartFile file)
+            @RequestParam("file") MultipartFile file,
+            @RequestParam("documentId") String documentId)
             throws IOException {
 
         if (file.isEmpty()) {
             throw new IllegalArgumentException("Uploaded PDF is empty");
         }
 
-        return documentIngestionService.ingestPdf(file);
+        return documentIngestionService.ingestPdf(file, documentId);
     }
 }

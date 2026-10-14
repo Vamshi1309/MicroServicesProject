@@ -26,7 +26,8 @@ public class RagServiceClient {
     @Value("${rag.service.url}")
     private String ragServiceUrl;
 
-    public RagIngestionResponse ingestDocument(MultipartFile file) throws IOException {
+    public RagIngestionResponse ingestDocument(
+            MultipartFile file, String documentId) throws IOException {
         ByteArrayResource fileResource = new ByteArrayResource(file.getBytes()) {
             @Override
             public String getFilename() {
@@ -43,6 +44,7 @@ public class RagServiceClient {
 
         MultiValueMap<String, Object> body = new LinkedMultiValueMap<>();
         body.add("file", fileEntity);
+        body.add("documentId", documentId);
 
         HttpHeaders headers = new HttpHeaders();
         headers.setContentType(MediaType.MULTIPART_FORM_DATA);

@@ -5,7 +5,6 @@ import java.util.ArrayList;
 import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
-import java.util.UUID;
 
 import org.springframework.ai.document.Document;
 import org.springframework.ai.vectorstore.VectorStore;
@@ -21,7 +20,8 @@ public class DocumentIngestionService {
     private final TextChunkingService textChunkingService;
     private final VectorStore vectorStore;
 
-    public Map<String, Object> ingestPdf(MultipartFile file) throws IOException {
+    public Map<String, Object> ingestPdf(
+        MultipartFile file, String docId) throws IOException {
         String extractedText = pdfTextExtractionService.extractText(file);
 
         if (extractedText == null || extractedText.isBlank()) {
@@ -35,8 +35,6 @@ public class DocumentIngestionService {
             throw new IOException(
                     "No text chunks were created from the PDF");
         }
-
-        String docId = UUID.randomUUID().toString();
 
         List<Document> documents = new ArrayList<>();
 
