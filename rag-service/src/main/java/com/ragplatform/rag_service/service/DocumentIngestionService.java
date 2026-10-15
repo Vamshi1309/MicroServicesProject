@@ -13,6 +13,8 @@ import org.springframework.web.multipart.MultipartFile;
 
 import lombok.RequiredArgsConstructor;
 
+import com.ragplatform.rag_service.dto.response.DocumentIngestionResponse;
+
 @Service
 @RequiredArgsConstructor
 public class DocumentIngestionService {
@@ -20,8 +22,8 @@ public class DocumentIngestionService {
     private final TextChunkingService textChunkingService;
     private final VectorStore vectorStore;
 
-    public Map<String, Object> ingestPdf(
-        MultipartFile file, String docId) throws IOException {
+    public DocumentIngestionResponse ingestPdf(
+            MultipartFile file, String docId) throws IOException {
         String extractedText = pdfTextExtractionService.extractText(file);
 
         if (extractedText == null || extractedText.isBlank()) {
@@ -58,13 +60,12 @@ public class DocumentIngestionService {
 
         vectorStore.add(documents);
 
-        Map<String, Object> result = new HashMap<>();
-        result.put("documentId", docId);
-        result.put("fileName", filename);
-        result.put("characterCount", extractedText.length());
-        result.put("chunkCount", chunks.size());
-        result.put("status", "INGESTED");
-
-        return result;
+        return DocumentIngestionResponse.builder()
+                .documentId(docId)
+                .fileName(filename)
+                .characterCount(extractedText.length())
+                .chunkCount(chunks.size())
+                .status("INGESTED")
+                .build();
     }
 }
