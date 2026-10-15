@@ -14,6 +14,7 @@ import org.springframework.web.multipart.MultipartFile;
 import lombok.RequiredArgsConstructor;
 
 import com.ragplatform.rag_service.dto.response.DocumentIngestionResponse;
+import com.ragplatform.rag_service.exception.InvalidDocumentException;
 
 @Service
 @RequiredArgsConstructor
@@ -27,8 +28,8 @@ public class DocumentIngestionService {
         String extractedText = pdfTextExtractionService.extractText(file);
 
         if (extractedText == null || extractedText.isBlank()) {
-            throw new IOException(
-                    "No readable text found in the uploaded PDF");
+            throw new InvalidDocumentException(
+                    "No readable text found in the uploaded PDF.");
         }
 
         List<String> chunks = textChunkingService.splitIntoChunks(extractedText);
