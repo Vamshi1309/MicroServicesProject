@@ -9,6 +9,8 @@ import org.springframework.web.multipart.MultipartFile;
 import com.ragplatform.document.dto.DocumentResponse;
 import com.ragplatform.document.entity.Document;
 import com.ragplatform.document.repository.DocumentRepository;
+import com.ragplatform.document.events.DocumentEventProducer;
+import com.ragplatform.document.events.DocumentUploadedEvent;
 
 import lombok.RequiredArgsConstructor;
 
@@ -18,7 +20,7 @@ public class DocumentService {
 
         private final DocumentStorageService storageService;
         private final DocumentRepository documentRepository;
-        private final RagServiceClient ragServiceClient;
+        private final DocumentEventProducer documentEventProducer;
 
         public DocumentResponse uploadDocument(MultipartFile file) throws IOException {
 
@@ -41,9 +43,12 @@ public class DocumentService {
                 // 3. Save metadata in PostgreSQL
                 Document savedDocument = documentRepository.save(document);
 
-                ragServiceClient.ingestDocument(
-                                file,
-                                savedDocument.getId().toString());
+                DocumentUploadedEvent event = new DocumentUploadedEvent(
+                                savedDocument.getId(),
+                                savedDocument.getOriginalFileName(),
+                                savedDocument.getContentType());
+
+                documentEventProducer.publishDocumentUploaded(event);
 
                 // 4. Convert the entity into a safe API response
                 return new DocumentResponse(
