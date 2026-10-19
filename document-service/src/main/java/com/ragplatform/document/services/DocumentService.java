@@ -1,8 +1,13 @@
 package com.ragplatform.document.services;
 
+import java.io.FileNotFoundException;
 import java.io.IOException;
+import java.nio.file.Files;
+import java.nio.file.Path;
 import java.nio.file.Paths;
 
+import org.springframework.core.io.Resource;
+import org.springframework.core.io.UrlResource;
 import org.springframework.stereotype.Service;
 import org.springframework.web.multipart.MultipartFile;
 
@@ -11,6 +16,7 @@ import com.ragplatform.document.entity.Document;
 import com.ragplatform.document.repository.DocumentRepository;
 import com.ragplatform.document.events.DocumentEventProducer;
 import com.ragplatform.document.events.DocumentUploadedEvent;
+import java.util.UUID;
 
 import lombok.RequiredArgsConstructor;
 
@@ -57,5 +63,21 @@ public class DocumentService {
                                 savedDocument.getContentType(),
                                 savedDocument.getFileSize(),
                                 savedDocument.getUploadedAt());
+        }
+
+        public Resource getDocumentFile(UUID documentId) throws IOException {
+                Document document = documentRepository.findById(documentId)
+                                .orElseThrow(() -> new RuntimeException("Document not found: " + documentId));
+
+                Path filePath = Paths.get(document.getStoragePath())
+                                .toAbsolutePath()
+                                .normalize();
+
+                if (!Files.exists(filePath) || !Files.isRegularFile(filePath)) {
+                        throw new FileNotFoundException(
+                                        "Stored file not found for document: " + documentId);
+                }
+
+                return new UrlResource(filePath.toUri());
         }
 }

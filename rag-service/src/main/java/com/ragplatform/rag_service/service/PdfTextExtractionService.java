@@ -1,3 +1,4 @@
+
 package com.ragplatform.rag_service.service;
 
 import java.awt.image.BufferedImage;
@@ -12,14 +13,19 @@ import org.springframework.stereotype.Service;
 import org.springframework.web.multipart.MultipartFile;
 
 import net.sourceforge.tess4j.Tesseract;
-import net.sourceforge.tess4j.TesseractException;;
+import net.sourceforge.tess4j.TesseractException;
 
 @Service
 public class PdfTextExtractionService {
 
     public String extractText(MultipartFile file) throws IOException {
-        try (InputStream inputStream = file.getInputStream();
-                PDDocument document = Loader.loadPDF(inputStream.readAllBytes())) {
+        try (InputStream inputStream = file.getInputStream()) {
+            return extractText(inputStream);
+        }
+    }
+
+    public String extractText(InputStream inputStream) throws IOException {
+        try (PDDocument document = Loader.loadPDF(inputStream.readAllBytes())) {
 
             // Step 1: Try extracting existing PDF text
             PDFTextStripper stripper = new PDFTextStripper();
@@ -31,13 +37,15 @@ public class PdfTextExtractionService {
 
             // Step 2: Use OCR when the PDF contains scanned images
             Tesseract tesseract = new Tesseract();
-            tesseract.setDatapath("/usr/share/tesseract-ocr/5/tessdata");
+            tesseract.setDatapath(
+                    "/usr/share/tesseract-ocr/5/tessdata");
             tesseract.setLanguage("eng");
 
             PDFRenderer renderer = new PDFRenderer(document);
             StringBuilder ocrText = new StringBuilder();
 
             for (int page = 0; page < document.getNumberOfPages(); page++) {
+
                 BufferedImage image = renderer.renderImageWithDPI(page, 200);
 
                 try {
