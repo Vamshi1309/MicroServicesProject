@@ -6,6 +6,7 @@ import org.springframework.transaction.annotation.Transactional;
 
 import com.ragplatform.document.entity.Document;
 import com.ragplatform.document.repository.DocumentRepository;
+import com.ragplatform.document.services.IngestionSseService;
 
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
@@ -18,6 +19,7 @@ public class DocumentIngestionStatusConsumer {
     private static final Logger log = LoggerFactory.getLogger(DocumentIngestionStatusConsumer.class);
 
     private final DocumentRepository documentRepository;
+    private final IngestionSseService sseService;
 
     @KafkaListener(topics = "${app.kafka.topics.document-ingestion-status:document-ingestion-status}", groupId = "document-status-group")
     @Transactional
@@ -41,6 +43,10 @@ public class DocumentIngestionStatusConsumer {
 
         document.setIngestionStatus(status);
         documentRepository.save(document);
+
+        sseService.publish(
+                document.getId(),
+                document.getIngestionStatus());
 
         log.info(
                 "Document status updated: documentId={}, status={}",
